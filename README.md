@@ -1,170 +1,178 @@
-# GitHub 智能单向关注清理脚本 · 使用教程
+# GitHub Smart One-Way Unfollow Cleanup Script · Tutorial
 
 ---
 
-## 目录
+## Table of Contents
 
-1. [第一步：申请 GitHub 个人访问令牌（PAT）](#step1)
-2. [第二步：配置白名单](#step2)
-3. [第三步：首次演习运行（DRY RUN）](#step3)
-4. [第四步：正式执行取消关注](#step4)
-5. [脚本各功能说明](#features)
-6. [常见问题 FAQ](#faq)
-
----
-
-## 第一步：申请 GitHub 个人访问令牌（PAT） {#step1}
-
-PAT 是脚本调用 GitHub API 的"钥匙"，必须正确配置权限。
-
-### 操作步骤
-
-1. 登录 GitHub，点击右上角头像 → **Settings（设置）**
-2. 滚动到左侧菜单最底部，点击 **Developer settings（开发者设置）**
-3. 选择 **Personal access tokens** → **Tokens (classic)**
-4. 点击右上角 **Generate new token** → **Generate new token (classic)**
-5. 填写表单：
-   - **Note（备注）**：填写 `unfollow-cleaner`（随意，便于识别）
-   - **Expiration（有效期）**：建议选 `7 days`（用完即弃，更安全）
-   - **Select scopes（权限范围）**：
-     - 只需勾选 **`user` → `user:follow`**（管理关注关系）
-     - 其余所有权限一律**不要勾选**，最小权限原则
-6. 点击底部 **Generate token**
-7. **立即复制 Token**（页面只显示一次，关闭后无法再看到）
-
-> **安全提示**：Token 等同于密码，不要分享给任何人，不要提交到 Git 仓库。
+1. [Step 1: Apply for a GitHub Personal Access Token (PAT)](https://www.google.com/search?q=%23step1)
+2. [Step 2: Configure the Whitelist](https://www.google.com/search?q=%23step2)
+3. [Step 3: First Run in Simulation Mode (DRY RUN)](https://www.google.com/search?q=%23step3)
+4. [Step 4: Execute Actual Unfollowing](https://www.google.com/search?q=%23step4)
+5. [Feature Explanations](https://www.google.com/search?q=%23features)
+6. [Frequently Asked Questions (FAQ)](https://www.google.com/search?q=%23faq)
 
 ---
 
-## 第二步：配置白名单 {#step2}
+## Step 1: Apply for a GitHub Personal Access Token (PAT) {#step1}
 
-打开下载的 `github-smart-unfollow.js` 文件，找到以下代码段：
+The PAT acts as the "key" for the script to call the GitHub API, and its permissions must be configured correctly.
+
+### Steps
+
+1. Log in to GitHub, click your avatar in the upper right corner → **Settings**
+2. Scroll to the bottom of the left menu and click **Developer settings**
+3. Select **Personal access tokens** → **Tokens (classic)**
+4. Click **Generate new token** in the upper right corner → **Generate new token (classic)**
+5. Fill out the form:
+* **Note**: Enter `unfollow-cleaner` (or anything you like, just for easy identification)
+* **Expiration**: `7 days` is recommended (disposable after use, much safer)
+* **Select scopes**:
+* Check **`user` → `user:follow**` only (to manage follow relationships)
+* Do **NOT** check any other permissions, adhering to the principle of least privilege
+
+
+
+
+6. Click **Generate token** at the bottom
+7. **Copy the Token immediately** (it will only be displayed once, and you won't be able to see it again after closing the page)
+
+> **Security Tip**: The Token is equivalent to a password. Do not share it with anyone or commit it to a Git repository.
+
+---
+
+## Step 2: Configure the Whitelist {#step2}
+
+Open the downloaded `github-smart-unfollow.js` file and find the following code snippet:
 
 ```javascript
 const CORE_WHITE_LIST = [
   "sindresorhus",
   "torvalds",
-  // ... 示例用户名
+  // ... example usernames
 ];
+
 ```
 
-### 如何编辑
+### How to Edit
 
-- **添加**：在数组中新增一行 `"用户名",`（注意英文逗号）
-- **删除**：删掉对应的行即可
-- 用户名**大小写不敏感**，脚本会自动统一转换
-- 白名单用户无论是否回关你，脚本**绝对不会**取消关注他们
-
-### 示例
-
-```javascript
-const CORE_WHITE_LIST = [
-  "my-best-friend",   // 好友，永久保留
-  "my-mentor",        // 导师，永久保留
-  "a-company-account",
-];
-```
+* **Add**: Insert a new line `"username",` inside the array (don't forget the English comma)
+* **Delete**: Simply remove the corresponding line
+* Usernames are **case-insensitive**; the script will automatically standardize them
+* Users on the whitelist **will absolutely never** be unfollowed by the script, regardless of whether they follow you back
 
 ---
 
-## 第三步：首次演习运行（强烈推荐） {#step3}
+## Step 3: First Run in Simulation Mode {#step3}
 
-需要注意，如果想要在浏览器的F12的Console中粘贴内容，有可能会报错，需要解决这个问题，需要提前手动输入`allow pasting`命令并运行。
+Note that if you want to paste the code into the browser's F12 Console, you might encounter an error. To resolve this issue, you need to manually type the `allow pasting` command and run it beforehand.
 
-首次运行务必使用演习模式（`DRY_RUN = true`），只分析不操作，确认名单无误后再正式执行。
+For your first run, make sure to use simulation mode (`DRY_RUN = true`). This only analyzes data without making any actual changes, allowing you to double-check the list before executing for real.
 
-### 确认演习模式已开启
+### Confirm Simulation Mode is Enabled
 
-在脚本中找到：
+Find this in the script:
 
 ```javascript
 const DRY_RUN = true;
+
 ```
 
-### 运行步骤
+### Steps to Run
 
-1. 用浏览器打开 [github.com](https://github.com) 并**确保已登录**
-2. 按 **F12** 打开开发者工具
-3. 点击顶部的 **Console（控制台）** 标签页
-4. 将 `github-smart-unfollow.js` 文件的**完整代码**全部复制
-5. 粘贴到控制台输入框，按 **Enter** 运行
-6. 按提示依次输入：
-   - 你的 GitHub PAT Token
-   - 你的 GitHub 用户名
-   - 临时追加的白名单用户（可留空直接回车）
-7. 等待脚本扫描完毕，在控制台查看：
-   - **分析报告**（关注数、粉丝数、单向关注数）
-   - **待清理名单表格**（仔细核查每一个用户名）
+1. Open [github.com](https://github.com) in your browser and **make sure you are logged in**
+2. Press **F12** to open Developer Tools
+3. Click the **Console** tab at the top
+4. Copy the **entire code** of the `github-smart-unfollow.js` file
+5. Paste it into the Console input box and press **Enter** to run it
+6. Follow the prompts to enter:
+* Your GitHub PAT Token
+* Your GitHub username
+* Temporarily added whitelist users (you can leave this blank and just press Enter)
 
-> 演习模式下脚本不会做任何修改，可以放心运行多次。
+
+7. Wait for the script to finish scanning, then check the Console for:
+* **Analysis Report** (following count, follower count, non-reciprocal follow count)
+* **To-be-cleaned List Table** (carefully check every single username)
+
+
+
+> The script will not make any modifications in simulation mode, so you can safely run it multiple times.
 
 ---
 
-## 第四步：正式执行取消关注 {#step4}
+## Step 4: Execute Actual Unfollowing {#step4}
 
-确认演习模式下的名单无误后：
+Once you have verified that the list in simulation mode is correct:
 
-1. 在脚本中将演习模式关闭：
+1. Turn off simulation mode in the script:
 
 ```javascript
 const DRY_RUN = false;
+
 ```
 
-2. 重复第三步的运行流程
-3. 脚本在打印名单后会有 **5 秒倒计时**
-4. 随后弹出确认框，**手动输入 `yes`** 才会开始执行
-5. 输入其他任何内容（或点取消）均会中止操作
+2. Repeat the execution process from Step 3
+3. The script will display a **5-second countdown** after printing the list
+4. A confirmation box will then pop up. You must **manually type `yes**` to begin execution
+5. Typing anything else (or clicking Cancel) will abort the operation
 
 ---
 
-## 脚本各功能说明 {#features}
+## Feature Explanations {#features}
 
-| 功能 | 说明 |
-|------|------|
-| **白名单保护** | 双层白名单（内置 + 运行时追加），触发时控制台打印提示 |
-| **演习模式** | `DRY_RUN=true` 时只分析不操作，安全验证名单 |
-| **分页处理** | 每页 100 条，自动翻页直到获取全部数据 |
-| **速率限制检测** | 实时读取 `x-ratelimit-remaining`，低于 15 次时主动中止 |
-| **随机延迟** | 每次取消关注前随机等待 2~5 秒，模拟人工操作 |
-| **5 秒倒计时** | 正式执行前强制等待，给最后一次反悔的机会 |
-| **二次确认** | 必须手动输入 `yes` 才会执行，防误操作 |
-| **滥用检测中止** | 收到 HTTP 403/429 时立即停止并报告已完成进度 |
-| **彩色日志** | 不同类型日志用不同颜色区分，一目了然 |
-| **进度百分比** | 每次操作显示当前进度（已处理 X/总数，百分比）|
-
----
-
-## 常见问题 FAQ {#faq}
-
-### Q：Token 输入后提示 `401 Token 无效`？
-
-检查以下几点：
-- Token 是否完整复制（开头是 `ghp_` 或 `github_pat_`）
-- Token 是否已过期（在 GitHub 设置里查看）
-- Token 的 scope 是否包含 `user:follow`
-
-### Q：脚本运行到一半停了，怎么办？
-
-大概率是触发了 GitHub 的速率限制（通常是短时间内操作过多）。脚本会自动停止并提示剩余未处理人数。**等待 1 小时**后重新运行即可，已成功取消关注的用户不会被重复处理。
-
-### Q：我的关注有 2000+ 人，能运行吗？
-
-完全可以。脚本支持自动分页，无论多少人都能完整获取。但操作时间会较长（以 500 人需取消为例，最长约 40 分钟），请保持页面开启，不要关闭标签页。
-
-### Q：运行时控制台提示 `Could not establish connection`？
-
-这是浏览器扩展（如广告拦截器）干扰了脚本。尝试在**无痕/隐私模式**下打开 GitHub 并重新运行。
-
-### Q：如何只清理部分用户而不是全部？
-
-在脚本生成名单表格后，你可以记录下不想清理的用户名，将他们加入白名单，然后重新运行一次演习模式确认，再正式执行。
-
-### Q：运行完后建议怎么处理 Token？
-
-建议立即在 GitHub 设置中**撤销（Revoke）**该 Token，防止泄露风险：
-
-> GitHub → Settings → Developer settings → Personal access tokens → 找到对应 Token → Delete
+| Feature | Description |
+| --- | --- |
+| **Whitelist Protection** | Dual-layer whitelist (built-in + runtime additions); logs a notice to the console when triggered |
+| **Simulation Mode** | Only analyzes without taking action when `DRY_RUN=true` to safely verify the list |
+| **Pagination Handling** | Processes 100 items per page, automatically turning pages until all data is fetched |
+| **Rate Limit Detection** | Reads `x-ratelimit-remaining` in real-time, proactively aborting when it falls below 15 |
+| **Random Delay** | Randomly waits 2~5 seconds before each unfollow action to mimic human behavior |
+| **5-second Countdown** | Enforces a wait before actual execution, offering one final chance to back out |
+| **Double Confirmation** | Requires manually typing `yes` to execute, preventing accidental operations |
+| **Abuse Detection Stop** | Instantly stops and reports progress upon receiving an HTTP 403/429 error |
+| **Colorful Logs** | Categorizes different types of logs with distinct colors for clear readability |
+| **Progress Percentage** | Displays current progress during each operation (Processed X/Total, Percentage) |
 
 ---
 
-> 脚本开源仅供学习参考，请合理使用，遵守 GitHub 服务条款。
+## Frequently Asked Questions (FAQ) {#faq}
+
+### Q: After entering the Token, it prompts `401 Token Invalid`?
+
+Check the following points:
+
+* Did you copy the full Token? (It should start with `ghp_` or `github_pat_`)
+* Has the Token expired? (Check your GitHub settings)
+* Does the Token's scope include `user:follow`?
+
+### Q: What should I do if the script stops halfway through?
+
+It is highly likely that you triggered GitHub's rate limit (usually caused by too many actions in a short period). The script will automatically stop and display the number of remaining unprocessed users. **Wait for 1 hour** and run it again. Users who have already been successfully unfollowed will not be processed again.
+
+### Q: I follow over 2000+ people, can I still run it?
+
+Absolutely. The script supports automatic pagination and can fetch the complete list regardless of the size. However, the operation will take longer (for example, taking up to 40 minutes to unfollow 500 users). Please keep the page open and do not close the tab.
+
+### Q: The console displays `Could not establish connection` during execution?
+
+This means a browser extension (such as an ad blocker) is interfering with the script. Try opening GitHub in **Incognito/Private Mode** and running it again.
+
+### Q: How can I clean up only some users instead of all of them?
+
+After the script generates the list table, you can note down the usernames you don't want to unfollow, add them to the whitelist, rerun simulation mode to confirm, and then execute it for real.
+
+### Q: What is recommended to do with the Token after finishing?
+
+It is highly recommended to **Revoke** the Token immediately in your GitHub settings to prevent leak risks:
+
+> GitHub → Settings → Developer settings → Personal access tokens → Find the token → Delete
+
+---
+
+> The script is open-sourced for learning and reference purposes only. Please use it reasonably and abide by GitHub's Terms of Service.
+
+Special thanks to the repositories:
+
+[https://github.com/Phylactre/Github_fllower_fuck](https://github.com/Phylactre/Github_fllower_fuck)
+
+[https://github.com/Phylactre/GitHub-follower-manager](https://github.com/Phylactre/GitHub-follower-manager)
